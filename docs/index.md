@@ -50,13 +50,7 @@ Sibling-tempfile + atomic-rename for the regular-file path. Hybrid in-memory + t
 
 ## What's coming
 
-Future ports are drawn from a curated catalog of CLI tools missing from the Rust ecosystem. Candidates under active consideration include:
-
-- **`vipe`** — pop `$EDITOR` mid-pipe, edit the buffer, edited bytes flow downstream
-- **`pee`** — like `tee` but to commands instead of files
-- **`combine`** — set operations on files (and/or/not/xor) line-by-line
-- **`pv`** — pipe viewer with progress bar, ETA, throughput display
-- **`detox`** — sanitize weird/unicode characters out of filenames
+Future ports are drawn from a curated catalog of CLI tools missing from the Rust ecosystem.
 
 Each port is selected by impact (real user demand) × effort (small, focused surface) × gap severity (no Rust equivalent yet) × maintenance burden (sustainable for a solo maintainer over years).
 
@@ -68,7 +62,6 @@ The goal isn't to replace the originals. If you have moreutils installed, keep u
 
 ## Principles
 
-- **Small surface, big leverage.** Favor candidates with tiny specs and broad audiences.
 - **Behavioral compatibility first.** Each port has a Strict mode that matches the original byte-for-byte for documented inputs, so muscle memory and shell scripts transfer.
 - **One job per crate.** No mega-utilities. Each crate is independently named, versioned, and published.
 - **Static and portable.** Single static binary that works wherever the original's semantics permit.
