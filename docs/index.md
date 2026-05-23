@@ -50,6 +50,9 @@ Sibling-tempfile + atomic-rename for the regular-file path. Hybrid in-memory + t
 
 ## What's coming
 
+Initial Uploads > Bugs + Optimizations > Enhancements
+or Other Libraries
+
 Future ports are drawn from a curated catalog of CLI tools missing from the Rust ecosystem.
 
 Each port is selected by impact (real user demand) × effort (small, focused surface) × gap severity (no Rust equivalent yet) × maintenance burden (sustainable for a solo maintainer over years).
