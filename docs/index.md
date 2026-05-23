@@ -48,6 +48,44 @@ Sibling-tempfile + atomic-rename for the regular-file path. Hybrid in-memory + t
 
 ---
 
+### [rusty-vipe](https://github.com/jsh562/rusty-vipe)
+
+**A Rust port of moreutils `vipe`** — pop `$EDITOR` mid-pipe, edit the buffered bytes interactively, resume the pipeline with the edited output.
+
+```sh
+grep ERROR /var/log/syslog | rusty-vipe | xargs -I {} report-bug.sh "{}"
+some-command | rusty-vipe --suffix=.json   # syntax-highlight hint
+some-command | rusty-vipe --editor='code --wait'
+```
+
+Cross-platform TTY reattachment (`/dev/tty` on Unix, `CONIN$`/`CONOUT$` on Windows) lets the editor drive a real terminal while the pipeline's stdin/stdout stay piped. Editor exits non-zero → no bytes downstream + preserved exit code (clamped on Windows for codes >254). Strict moreutils-compat mode emits byte-equal "exited nonzero, aborting" stderr. Static binaries on Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64.
+
+- **Install:** `cargo install rusty-vipe` · `cargo binstall rusty-vipe`
+- **Crates.io:** [crates.io/crates/rusty-vipe](https://crates.io/crates/rusty-vipe)
+- **Docs:** [docs.rs/rusty-vipe](https://docs.rs/rusty-vipe)
+- **Source:** [github.com/jsh562/rusty-vipe](https://github.com/jsh562/rusty-vipe)
+
+---
+
+### [rusty-pee](https://github.com/jsh562/rusty-pee)
+
+**A Rust port of moreutils `pee`** — `tee` but to commands instead of files. Fan a single stdin stream out to N concurrent shell-spawned children, aggregate their exit codes, surface failures cleanly.
+
+```sh
+journalctl -p err | rusty-pee 'grep selinux > sel.log' 'wc -l > count.txt'
+some-command | rusty-pee --capture 'cat' 'cat'   # argv-ordered output
+some-command | rusty-pee --strict 'validator-A' 'validator-B'
+```
+
+Sync blocking `write_all` loop provides natural backpressure — slow children pace the parent to the slowest reader, parent peak memory stays `O(BUFSIZ × N)` even on multi-GiB inputs. When a child closes its stdin early, the parent drops it from the live-set and continues feeding survivors. Default-mode exit aggregation uses `max(child_codes)`; Strict mode uses bitwise OR (byte-equal moreutils). Library API takes `Box<dyn Write + Send>` sinks rather than command strings, so embedders fan out without subprocesses. Static binaries on Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64.
+
+- **Install:** `cargo install rusty-pee` · `cargo binstall rusty-pee`
+- **Crates.io:** [crates.io/crates/rusty-pee](https://crates.io/crates/rusty-pee)
+- **Docs:** [docs.rs/rusty-pee](https://docs.rs/rusty-pee)
+- **Source:** [github.com/jsh562/rusty-pee](https://github.com/jsh562/rusty-pee)
+
+---
+
 ## What's coming
 
 Initial Uploads > Bugs + Optimizations > Enhancements   
