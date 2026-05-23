@@ -1,0 +1,11 @@
+# Jekyll build output (we don't run Jekyll locally — GitHub Pages builds it)
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+
+# Editor / OS junk
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

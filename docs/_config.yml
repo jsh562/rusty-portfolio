@@ -1,0 +1,10 @@
+# GitHub Pages config for the Rusty portfolio site.
+# Renders docs/index.md (and any other .md files) via Jekyll's built-in
+# theme support. No build step — push to main, GitHub serves it in ~30s.
+
+title: Rusty
+description: A portfolio of small, focused Rust ports of CLI utilities missing from the Rust ecosystem.
+theme: jekyll-theme-minimal
+
+# Hide the auto-generated "View on GitHub" button (uncomment to enable).
+# show_downloads: false
