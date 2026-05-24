@@ -86,6 +86,46 @@ Sync blocking `write_all` loop provides natural backpressure — slow children p
 
 ---
 
+### [rusty-pwgen](https://github.com/jsh562/rusty-pwgen)
+
+**A Rust port of Theodore Ts'o's `pwgen`** — generate pronounceable or random passwords from the OS CSPRNG.
+
+```sh
+rusty-pwgen                     # default: 160 pronounceable, 8-char passwords
+rusty-pwgen 16 5                # 5 passwords, 16 chars each
+rusty-pwgen -s -y 24 1          # secure-random + symbols, 24-char single
+rusty-pwgen -H seed.txt 12 10   # reproducible: same seed → same passwords
+```
+
+Faithful port of `pw_phonemes.c` (alternating consonant/vowel groups with digraphs `ch sh ph th gh ng`, `NOT_FIRST` constraint on `gh`/`ng`). Secure mode samples uniformly from the active character set via Rust's `OsRng`. `-H` reproducible mode chains SHA-256 over the seed file/stdin into ChaCha20Rng; the contract is **locked at v0.1.0** — any change is a MAJOR bump. Library API exposes `Pwgen` + `PwgenBuilder` with three generation methods (`generate_one`/`generate_n`/`iter`); `default-features = false` strips clap and friends for embedders. Static binaries on Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64.
+
+- **Install:** `cargo install rusty-pwgen` · `cargo binstall rusty-pwgen`
+- **Crates.io:** [crates.io/crates/rusty-pwgen](https://crates.io/crates/rusty-pwgen)
+- **Docs:** [docs.rs/rusty-pwgen](https://docs.rs/rusty-pwgen)
+- **Source:** [github.com/jsh562/rusty-pwgen](https://github.com/jsh562/rusty-pwgen)
+
+---
+
+### [rusty-detox](https://github.com/jsh562/rusty-detox)
+
+**A Rust port of Doug Harple's `detox(1)`** — sanitize messy filenames through a configurable filter pipeline.
+
+```sh
+rusty-detox -n 'My Résumé (final v2).pdf'   # preview the rename
+rusty-detox -r ./Downloads/                  # recursive batch
+rusty-detox -s utf_8 *.pdf                   # pick the utf_8 sequence
+echo 'hello world.txt' | inline-detox        # streaming companion binary
+```
+
+Implements the upstream filter pipeline (`uncgi`, `iso8859_1`, `utf_8`, `safe`, `wipeup`, `max_length`, plus `safe_platform` auto-enabled on Windows) over a `Sequence` type. Three built-in sequences (`default`, `iso8859_1`, `utf_8`) plus user-defined sequences via `~/.detoxrc` parsed by a hand-rolled recursive-descent parser (zero dep impact on library-only builds). Recursive walking is depth-first leaves-up; collisions resolve with a monotonic `_N` suffix inserted BEFORE the final extension token. Cross-device rename falls back to copy + fsync + rename + unlink with best-effort metadata preservation. Strict mode mirrors upstream's exact stderr format. Library API (`Detox`, `DetoxBuilder`, `Sequence`, `Filter`, `DetoxError`) is `default-features = false`-clean — no clap, no walkdir, no `anyhow` in the public surface. Static binaries on Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64.
+
+- **Install:** `cargo install rusty-detox` · `cargo binstall rusty-detox`
+- **Crates.io:** [crates.io/crates/rusty-detox](https://crates.io/crates/rusty-detox)
+- **Docs:** [docs.rs/rusty-detox](https://docs.rs/rusty-detox)
+- **Source:** [github.com/jsh562/rusty-detox](https://github.com/jsh562/rusty-detox)
+
+---
+
 ## What's coming
 
 Initial Uploads > Bugs + Optimizations > Enhancements   
