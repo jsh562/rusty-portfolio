@@ -146,6 +146,46 @@ Single-threaded copy loop with a monotonic `Instant`-driven token-bucket throttl
 
 ---
 
+### [rusty-pdfgrep](https://github.com/jsh562/rusty-pdfgrep)
+
+**A Rust port of Hans-Peter Deifel's `pdfgrep(1)`** — grep through PDF files with page-level text extraction, pluggable regex engines, and `--password` decryption for encrypted PDFs.
+
+```sh
+rusty-pdfgrep "experimental results" report.pdf    # single-file search
+rusty-pdfgrep -r -n "force majeure" ./contracts/   # recursive with page numbers
+rusty-pdfgrep -P "term1(?=term2)" file.pdf         # PCRE lookahead via fancy-regex
+rusty-pdfgrep --password "p1" --password "p2" "compliance" *.pdf
+```
+
+PDF text extraction via `lopdf` (page-level `extract_text(&[page_num])` — the analogue of grep's lines) wrapped in `std::panic::catch_unwind` so malformed PDFs degrade gracefully instead of aborting. Pluggable regex engines: `regex` (RE2-style, linear-time) by default, `fancy-regex` (pure-Rust PCRE-compat) under `-P`/`--perl-regexp` — no libpcre2 FFI required. Encrypted PDFs are skipped with a stderr warning unless one of the supplied `--password` flags decrypts (repeated; each PDF independently retries the full list in flag-order). Color output follows GNU grep conventions including `GREP_COLORS` env-var styling. Recursive directory walking with `--include`/`--exclude` fnmatch globs matches upstream pdfgrep semantics exactly (no gitignore awareness). Library API (`PdfGrep`, `PdfGrepBuilder`, `Match`, `PdfGrepError`) — `default-features = false` strips clap/walkdir/termcolor/anstyle/globset; only `lopdf` + `regex` + `fancy-regex` + `thiserror` remain in the runtime tree. Static binaries on Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64.
+
+- **Install:** `cargo install rusty-pdfgrep` · `cargo binstall rusty-pdfgrep`
+- **Crates.io:** [crates.io/crates/rusty-pdfgrep](https://crates.io/crates/rusty-pdfgrep)
+- **Docs:** [docs.rs/rusty-pdfgrep](https://docs.rs/rusty-pdfgrep)
+- **Source:** [github.com/jsh562/rusty-pdfgrep](https://github.com/jsh562/rusty-pdfgrep)
+
+---
+
+### [rusty-figlet](https://github.com/jsh562/rusty-figlet)
+
+**A Rust port of FIGlet 2.2.5** — render text as ASCII-art banners using FIGfont files, with 12 bundled fonts, all six horizontal smush rules, and per-column rainbow color output.
+
+```sh
+rusty-figlet "Hello"                          # default standard.flf banner
+rusty-figlet -f slant -w 60 -c "Section"      # slant font, 60-col centered
+rusty-figlet --rainbow "Deploying"            # per-column HSV gradient (toilet-style)
+echo "build ok" | rusty-figlet -f mini        # stdin → banner per line
+```
+
+In-house FIGfont 2.0 parser implementing the full header decode (`flf2a<hardblank>` + height + baseline + max_length + old_layout + comment_lines + optional print_direction + full_layout + codetag_count), required ASCII 32..=126 + seven German glyphs, and `<hexcode>` codetag blocks for higher codepoints. All six horizontal smush rules (equal, underscore, hierarchy, opposite-pair, big-X, hardblank) plus universal fallback per the FIGfont spec — rule precedence 1→2→3→4→5→6→universal, first applicable wins. 12 bundled fonts (`standard`, `slant`, `small`, `big`, `mini`, `banner`, `block`, `bubble`, `digital`, `lean`, `script`, `shadow`) shipped via `include_bytes!` so the static binary works offline with zero filesystem dependencies; `-f <path>` and repeatable `-d <dir>` extend to user-supplied `.flf` files. Strict-compat mode (`--strict` flag, `RUSTY_FIGLET_STRICT=1` env var, or `argv[0]=figlet`) produces byte-equal stdout against upstream `figlet 2.2.5` and rejects excluded flags (`-L`, `-R`, `-I`, `-N`, `--color`, `--rainbow`) with upstream's getopt-format `figlet: invalid option -- '<char>'` / `figlet: unrecognized option '--<name>'`. Color/rainbow output uses `anstyle` + `termcolor` (handles legacy Windows console fallback) and honors `NO_COLOR`. Library API (`Figlet`, `FigletBuilder`, `Banner`, `Font`, `FigletError`) — `default-features = false` strips clap/clap_complete/anstyle/termcolor/terminal_size; only `thiserror` remains in the runtime tree. Static binaries on Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64.
+
+- **Install:** `cargo install rusty-figlet` · `cargo binstall rusty-figlet`
+- **Crates.io:** [crates.io/crates/rusty-figlet](https://crates.io/crates/rusty-figlet)
+- **Docs:** [docs.rs/rusty-figlet](https://docs.rs/rusty-figlet)
+- **Source:** [github.com/jsh562/rusty-figlet](https://github.com/jsh562/rusty-figlet)
+
+---
+
 ## What's coming
 
 Initial Uploads > Bugs + Optimizations > Enhancements   
