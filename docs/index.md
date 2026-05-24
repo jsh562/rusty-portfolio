@@ -126,6 +126,26 @@ Implements the upstream filter pipeline (`uncgi`, `iso8859_1`, `utf_8`, `safe`, 
 
 ---
 
+### [rusty-pv](https://github.com/jsh562/rusty-pv)
+
+**A Rust port of Andrew Wood's `pv(1)`** — pipe viewer with progress bar, elapsed timer, ETA, rate, bytes-transferred display, and token-bucket rate limiting.
+
+```sh
+rusty-pv ubuntu.iso > /dev/sdb         # progress + ETA copying a file
+rusty-pv -L 5M big.iso > /mnt/out      # throttle to 5 MiB/s
+some-cmd | rusty-pv -N "stage 1" | xz  # labelled mid-pipeline progress
+rusty-pv -n -s 100M big.iso > out      # numeric mode for dialog --gauge
+```
+
+Single-threaded copy loop with a monotonic `Instant`-driven token-bucket throttle that converges to the configured rate within ±5% measured end-to-end wall-clock. Instantaneous rate uses EMA smoothing with α=0.3 (locked at v0.1.0 — Strict-mode byte-equal compat depends on it). IEC binary (KiB=1024) by default; `--si` switches to SI decimal (kB=1000) uniformly across all rate/byte fields. Fixed visual display field order (`[name:] p t e/I r b a`) regardless of CLI argv order. SIGPIPE handler restored before the copy loop so broken-pipe exits with code 141 matching upstream. Library API exposes `Pv` + `PvBuilder` + `Reporter` (Send-only) + `Progress` (`#[non_exhaustive]`) + `PvError`; `default-features = false` strips clap/crossterm/signal-hook/fd-lock — only `thiserror` remains in the runtime tree. Static binaries on Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64.
+
+- **Install:** `cargo install rusty-pv` · `cargo binstall rusty-pv`
+- **Crates.io:** [crates.io/crates/rusty-pv](https://crates.io/crates/rusty-pv)
+- **Docs:** [docs.rs/rusty-pv](https://docs.rs/rusty-pv)
+- **Source:** [github.com/jsh562/rusty-pv](https://github.com/jsh562/rusty-pv)
+
+---
+
 ## What's coming
 
 Initial Uploads > Bugs + Optimizations > Enhancements   
