@@ -186,6 +186,26 @@ In-house FIGfont 2.0 parser implementing the full header decode (`flf2a<hardblan
 
 ---
 
+### [rusty-autossh](https://github.com/jsh562/rusty-autossh)
+
+**A Rust port of Carson Harding's `autossh(1)`** — spawn `ssh(1)` as a child and keep it alive across network drops via a monitor-port heartbeat or simple respawn-on-exit, with full Unix daemonization, signal-driven ops control, and a tokio-async library API.
+
+```sh
+rusty-autossh -M 0 -o "ServerAliveInterval=30" user@host       # modern usage: ssh keepalive + respawn-on-exit
+rusty-autossh -M 20000 -L 8080:localhost:80 user@host          # classic monitor-port heartbeat
+rusty-autossh -f -M 0 -L 5432:db.internal:5432 jumpbox         # daemonize + DB tunnel
+kill -USR1 $(cat /tmp/auto.pid)                                # force-rotate ssh child without restarting wrapper
+```
+
+Tokio-async supervisor at the core: a single `tokio::select!` races `child.wait()`, the monitor-port heartbeat round-trip, and a unified signal stream. Spawns the system `ssh` binary via `tokio::process::Command` with the child placed in its own Unix process group (`process_group(0)`) so SIGTERM-to-supervisor doesn't cascade uncontrolled. The monitor-port mode (`-M <port>`) opens two local TCP listeners, injects `-L`/`-R` forwards into ssh's argv, and sends the upstream-byte-identical 16-byte ASCII-timestamp heartbeat (with `AUTOSSH_MESSAGE` append) every `AUTOSSH_POLL` seconds — a stale upstream interoperates with this peer byte-for-byte. The recommended modern pattern is `-M 0` (no monitor; respawn ssh on any non-zero exit, paired with OpenSSH's `ServerAliveInterval`). Full `AUTOSSH_*` env-var surface: `AUTOSSH_POLL`/`AUTOSSH_FIRST_POLL`/`AUTOSSH_GATETIME`/`AUTOSSH_MAXSTART`/`AUTOSSH_MAXLIFETIME`/`AUTOSSH_DEBUG`/`AUTOSSH_LOGFILE`/`AUTOSSH_LOGLEVEL`/`AUTOSSH_PIDFILE`/`AUTOSSH_PATH`/`AUTOSSH_PORT`/`AUTOSSH_MESSAGE`. Unix daemonization via the `daemonize` crate; Windows `-f` self-respawns via `CreateProcessW(DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP)` (documented BREAKING-CHANGE vs Unix fork). Signal handlers: SIGTERM/SIGINT → clean exit with 10s grace + SIGKILL fallback; SIGUSR1 → force-respawn ssh without incrementing the retry counter; SIGHUP → reset retry counter AND respawn (FR-042); Windows Ctrl+C/Break for the same termination semantics (no SIGUSR1 equivalent — documented). Strict-compat mode (`--strict` flag, `RUSTY_AUTOSSH_STRICT=1` env var, or `argv[0]=autossh`) produces byte-equal stderr against upstream `autossh 1.4g` and rejects all Rust-native long flags with upstream's getopt format. Library API (`SshSupervisor`, `SshSupervisorBuilder`, `MonitorMode`, `SupervisorEvent`, `AutosshError`) — `default-features = false` strips clap/clap_complete/anstyle/tracing/tracing-subscriber/tracing-appender/daemonize/atomicwrites/windows-sys; only `tokio` + `thiserror` remain. The supervisor holds exclusive ownership of SIGCHLD in the host tokio runtime — documented hard constraint. Crate name: `rusty-autossh` because the canonical `autossh` name on crates.io is squatted by an unrelated SSH credential manager — users can symlink the binary to `autossh` to activate strict-mode argv[0] detection. Static binaries on Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64.
+
+- **Install:** `cargo install rusty-autossh` · `cargo binstall rusty-autossh`
+- **Crates.io:** [crates.io/crates/rusty-autossh](https://crates.io/crates/rusty-autossh)
+- **Docs:** [docs.rs/rusty-autossh](https://docs.rs/rusty-autossh)
+- **Source:** [github.com/jsh562/rusty-autossh](https://github.com/jsh562/rusty-autossh)
+
+---
+
 ## What's coming
 
 Initial Uploads > Bugs + Optimizations > Enhancements   
